@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "vibecoin": {
+      "command": "node",
+      "args": ["mcp/dist/index.js"]
+    }
+  }
+}
