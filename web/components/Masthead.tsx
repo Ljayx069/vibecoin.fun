@@ -35,7 +35,7 @@ export default function Masthead({ onProjects = false }: { onProjects?: boolean 
                 : "rounded-md bg-accent px-3 py-1 font-medium text-background transition-colors hover:bg-accent-hover"
             }
           >
-            {onProjects ? "Projects" : "Trade →"}
+            Projects
           </Link>
         </nav>
       </div>
