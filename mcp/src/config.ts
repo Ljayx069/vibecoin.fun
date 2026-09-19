@@ -1,7 +1,7 @@
 import { homedir } from "node:os";
 import path from "node:path";
 
-function env(name: string, fallback: string): string {
+export function env(name: string, fallback: string): string {
   const v = process.env[name];
   return v && v.trim() !== "" ? v.trim() : fallback;
 }

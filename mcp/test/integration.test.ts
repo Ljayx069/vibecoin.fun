@@ -44,10 +44,12 @@ describe("vibecoin MCP server over stdio", () => {
     await client?.close();
   });
 
-  it("lists all 7 tools", async () => {
+  it("lists all 11 tools", async () => {
     const res = await client.listTools();
     const names = res.tools.map((t) => t.name).sort();
-    expect(names).toEqual(["collect-fees", "fund-agent", "info", "launch", "lock", "my-coins", "wallet"].sort());
+    expect(names).toEqual(
+      ["collect-fees", "evm_wallet", "fund-agent", "info", "launch", "lock", "my-coins", "pons_fees", "pons_launch", "pons_pairs", "wallet"].sort(),
+    );
   });
 
   it("info reports platform + fee facts", async () => {

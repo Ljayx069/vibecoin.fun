@@ -1,14 +1,15 @@
 # vibecoin.fun
 
-Tokenize your repo from the same Claude Code session you're building it in. A Claude Code–native launchpad for Solana: MCP server + site, wrapping pump.fun via the PumpPortal Local Transaction API. Non-custodial — every transaction is signed locally.
+Tokenize your repo from the same coding session you're building it in. An agent-native launchpad for Solana **and Robinhood Chain**: MCP server + site, wrapping pump.fun via the PumpPortal Local Transaction API on Solana and launching through Pons (ponsfamily.com) on Robinhood Chain — quotes in ETH or tokenized stock pairs, creator tax on top of the 1% standard fee, optional reward vault. Works with Claude Code, Cursor, Codex CLI, or any MCP client. Non-custodial — every transaction is signed locally.
 
 - **Site:** https://vibecoin.fun (landing + /projects + public JSON API)
-- **MCP install:** `claude mcp add vibecoin -- npx github:thetriggeredkid-spec/vibecoin-mcp`
+- **MCP install (Claude Code):** `claude mcp add vibecoin -- npx -y github:thetriggeredkid-spec/vibecoin-mcp`
+- **Cursor / Codex CLI / other clients:** see [mcp/README.md](mcp/README.md#install)
 
 ## Layout
 
 ```
-mcp/   TypeScript MCP server (7 tools) — self-contained npm package, mirrored to vibecoin-mcp
+mcp/   TypeScript MCP server (11 tools: pump.fun/Solana + Pons/Robinhood Chain) — self-contained npm package, mirrored to vibecoin-mcp
 web/   Next.js 15 site — landing, /projects, /api/{registry,metadata,projects}, Vercel Blob store
 docs/  Design spec, implementation plan, verified API research
 ```

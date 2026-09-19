@@ -1,6 +1,6 @@
 # vibecoin-mcp
 
-Launch your vibe coded app on Solana without leaving Claude Code. This MCP server drafts a coin from your repo, deploys it to pump.fun's bonding curve via the PumpPortal Local Transaction API, and recycles your creator fees into an agent budget — with keys that never leave your machine.
+Launch your vibe coded app on Solana **or Robinhood Chain** without leaving your coding agent — Claude Code, Cursor, Codex CLI, or any MCP client. On Solana this server drafts a coin from your repo and deploys it to pump.fun's bonding curve via the PumpPortal Local Transaction API; on Robinhood Chain it launches on **Pons** (ponsfamily.com) — bonding curve → permanently locked Uniswap V4 pool — with quote pairs in ETH or approved tokenized stocks. Your creator fees recycle into an agent budget either way, with keys that never leave your machine.
 
 Site: https://vibecoin.fun · Projects: https://vibecoin.fun/projects
 
@@ -9,35 +9,67 @@ Site: https://vibecoin.fun · Projects: https://vibecoin.fun/projects
 ### Claude Code
 
 ```bash
-claude mcp add vibecoin -- npx github:thetriggeredkid-spec/vibecoin-mcp
+claude mcp add vibecoin -- npx -y github:thetriggeredkid-spec/vibecoin-mcp
 ```
 
-### Manual (`~/.claude.json` or `.mcp.json`)
+Or manually in `~/.claude.json` / project `.mcp.json`:
 
 ```json
 {
   "mcpServers": {
     "vibecoin": {
       "command": "npx",
-      "args": ["github:thetriggeredkid-spec/vibecoin-mcp"]
+      "args": ["-y", "github:thetriggeredkid-spec/vibecoin-mcp"]
     }
   }
 }
 ```
 
-### From a clone
+### Cursor
+
+Add the same JSON to `.cursor/mcp.json` in your project (or `~/.cursor/mcp.json` for all projects):
+
+```json
+{
+  "mcpServers": {
+    "vibecoin": {
+      "command": "npx",
+      "args": ["-y", "github:thetriggeredkid-spec/vibecoin-mcp"]
+    }
+  }
+}
+```
+
+### Codex CLI
+
+```bash
+codex mcp add vibecoin -- npx -y github:thetriggeredkid-spec/vibecoin-mcp
+```
+
+Or manually in `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.vibecoin]
+command = "npx"
+args = ["-y", "github:thetriggeredkid-spec/vibecoin-mcp"]
+```
+
+Codex registers MCP servers globally, so the server may start outside your project directory — the `launch` tool takes a `project_dir` override for exactly this case (your agent will pass it when the preview looks off).
+
+### From a clone (any client)
 
 ```bash
 git clone https://github.com/thetriggeredkid-spec/vibecoin-mcp.git
 cd vibecoin-mcp && npm install && npm run build
-claude mcp add vibecoin -- node /absolute/path/to/vibecoin-mcp/dist/index.js
 ```
 
-Restart Claude Code after adding it.
+Then point your client at `node /absolute/path/to/vibecoin-mcp/dist/index.js` instead of the `npx` command.
+
+Restart your client after adding the server.
 
 ## One-prompt launch
 
-Open Claude Code in your project and say **"launch this as a coin"**. The flow:
+Open your coding agent in your project and say **"launch this as a coin"**. The flow:
 
 1. `launch` reads README.md, package.json and your git remote, then shows a preview: name, ticker, description, image, links, and the full cost breakdown.
 2. You approve (or tweak any field — everything is overridable).
@@ -51,13 +83,45 @@ Nothing is ever sent without an explicit preview → approve → `confirm: true`
 
 | Tool | What it does |
 |---|---|
-| `wallet` | Create the project's encrypted wallet, check SOL/USDC balances, transfer SOL |
+| `wallet` | Create the project's encrypted Solana wallet, check SOL/USDC balances, transfer SOL |
 | `launch` | Draft a coin from the repo and deploy it to pump.fun's bonding curve |
+| `evm_wallet` | Create/import/status for the encrypted Robinhood Chain wallet (chain 4663), the chain Pons launches on |
+| `pons_pairs` | List the live approved Pons quote assets — ETH plus tokenized stock pairs, index funds and stablecoins — with graduation thresholds |
+| `pons_launch` | Draft a coin from the repo and launch it on Pons: quote pair, creator tax on top of the 1% standard fee, reward vault (buyback), atomic dev buy, predicted token address |
+| `pons_fees` | Post-launch fee settings: status (recipient, tax, reward vault), transfer the fee receiving address, toggle the reward vault |
 | `my-coins` | List every coin launched from this machine with live market data |
 | `collect-fees` | Claim accrued pump.fun creator fees (all coins at once) |
 | `fund-agent` | Collect fees → swap SOL→USDC via Jupiter → hold the budget in the agent's wallet |
 | `lock` | Lock a % of your own tokens via Streamflow; returns a shareable proof link |
 | `info` | Fee table, config paths, wallet list, links |
+
+## Launching on Pons (Robinhood Chain)
+
+Pons is a third-party launchpad on Robinhood Chain (chain ID 4663), not a Robinhood product. Its model differs from pump.fun's in ways that matter to the launch config:
+
+- **Fixed 1B supply** bonding curve; graduates into a **permanently locked Uniswap V4 pool** once the quote-asset threshold is raised (default 4.2 ETH for ETH pairs). No migration step — anyone can trigger the graduation sweep.
+- **Quote pairs**: native ETH, or any of ~23 approved ERC-20s — tokenized equities (stock pairs like NVDA), index funds and stablecoins. `pons_pairs` reads the live list from the factory; the list is owner-managed so it is never hard-coded. A launch quoted in a stock pair collects that asset's fees and graduates into a pool keyed in it.
+- **Creator tax** (`creator_tax_percent`): your cut of every trade, **added on top of the protocol's standard 1% fee** — so 1.5 means traders pay 2.5% total. Capped by the factory (currently 10%, read live). Frozen at launch; zero is allowed but can never be raised later.
+- **Fee recipient**: always the launch wallet. It can be moved post-launch with `pons_fees transfer_recipient` if you ever need to.
+- **Reward vault** (`buyback: true`): part of your creator fee share funds a protocol buyback vault that releases linearly over 5 years, split with the protocol. Funded from your fees — not a holder distribution.
+- **Dev buy** (`dev_buy_eth`): an opening buy atomic with the launch, routed through the factory's trusted forwarder so the recipient is exempt from the 99% opening snipe tax (decays over 3 seconds). Unbought launches have been sniped out within two blocks — keep a dev buy in.
+- **Launch fee** (read live, ~0.0005 ETH) must equal `msg.value` exactly; the economics digest (`previewLaunchEconomics`) is pinned in the transaction and any owner re-peg while it is in flight reverts the launch.
+- CREATE2 deployment means the **token and curve addresses are predicted in the preview**, before anything is sent. Relaunching identical name+symbol reuses the salt and fails early, as it should.
+
+The flow matches `launch`: preview → user approves → `confirm: true`. The EVM wallet is auto-created under `~/.vibecoin/wallets-evm/` with the same scrypt + AES-256-GCM envelope and stored-password scheme as the Solana wallet. Stock-pair dev buys are not supported yet (native-ETH pairs only for `dev_buy_eth`); an ERC-20 quote sends an `approve` transaction before the launch when a dev buy is requested without allowance. Pons ABIs under `src/abi/` are the Sourcify-verified contract ABIs (provenance header in each file).
+
+### Fee settings on Pons — what can change and what can't
+
+From the verified factory source (`PonsV2LaunchFactory`):
+
+| Setting | At launch | After launch |
+|---|---|---|
+| Creator tax (`creator_tax_percent`, on top of the protocol's 1% standard) | set at launch | **frozen forever** — no setter exists |
+| Fee receiving address | the launch wallet | transferable by the current recipient, immediate (`pons_fees transfer_recipient`) — also re-points the reward vault beneficiary. The protocol owner can propose a redirect behind a timelock (a recovery path for lost wallets); `pons_fees status` shows any pending proposal |
+| Reward vault (`buyback`) | set at launch | toggleable (`pons_fees set_buyback`) — enabling is creator-only since it spends the creator's own fee bucket; the owner may only disable |
+| Protocol fees (1% curve fee, pool hook fee, 30% protocol share of the creator fee bucket, snipe tax params, factory cap) | fixed globally | owner-only, never per-launch |
+
+Pons has no native multi-wallet fee splitting — launch, then move the recipient to a multisig or split contract with `pons_fees transfer_recipient` to share fees across wallets.
 
 ## Token metadata field guide
 
@@ -100,6 +164,7 @@ What each field does, where it ends up, and who fills it. The `launch` preview s
 | Variable | Default | Purpose |
 |---|---|---|
 | `SOLANA_RPC_URL` | `https://api.mainnet-beta.solana.com` | RPC for submission/balances. Use a paid endpoint (Helius, Triton…) for reliability. |
+| `VIBECOIN_ROBINHOOD_RPC` | `https://rpc.mainnet.chain.robinhood.com` | Robinhood Chain RPC (Pons). |
 | `VIBECOIN_HOME` | `~/.vibecoin` | Where wallets/launches live. |
 | `VIBECOIN_WALLET_PASSWORD` | — | Bring-your-own wallet password (skips the stored secret). |
 | `VIBECOIN_DRY_RUN` | — | `1` = every action builds + simulates but never sends. |

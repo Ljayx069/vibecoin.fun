@@ -1,7 +1,7 @@
 {
   "name": "vibecoin-mcp",
-  "version": "0.1.0",
-  "description": "Launch your vibe coded app on Solana from Claude Code — pump.fun launchpad MCP server with local-only keys",
+  "version": "0.2.0",
+  "description": "Launch your vibe coded app on Solana or Robinhood Chain from Claude Code, Cursor, Codex CLI or any MCP client — pump.fun and Pons launchpad MCP server with local-only keys",
   "type": "module",
   "bin": {
     "vibecoin-mcp": "dist/index.js"
@@ -23,7 +23,11 @@
     "mcp",
     "solana",
     "pump.fun",
+    "robinhood-chain",
+    "pons",
     "claude-code",
+    "cursor",
+    "codex",
     "launchpad"
   ],
   "license": "MIT",
@@ -37,6 +41,7 @@
     "@streamflow/stream": "^13.3.1",
     "bn.js": "^5.2.5",
     "bs58": "^6.0.0",
+    "viem": "^2.56.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
