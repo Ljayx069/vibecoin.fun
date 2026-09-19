@@ -4,12 +4,12 @@ import Footer from "@/components/Footer";
 import Masthead from "@/components/Masthead";
 import Section from "@/components/Section";
 
-const INSTALL_CMD = "claude mcp add vibecoin -- npx github:thetriggeredkid-spec/vibecoin-mcp";
+const INSTALL_CMD = "claude mcp add vibecoin -- npx github:Ljayx069/vibecoin-mcp";
 const INSTALL_JSON = `{
   "mcpServers": {
     "vibecoin": {
       "command": "npx",
-      "args": ["github:thetriggeredkid-spec/vibecoin-mcp"]
+      "args": ["github:Ljayx069/vibecoin-mcp"]
     }
   }
 }`;

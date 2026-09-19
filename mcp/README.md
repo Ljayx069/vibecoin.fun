@@ -9,7 +9,7 @@ Site: https://vibecoin.fun · Projects: https://vibecoin.fun/projects
 ### Claude Code
 
 ```bash
-claude mcp add vibecoin -- npx -y github:thetriggeredkid-spec/vibecoin-mcp
+claude mcp add vibecoin -- npx -y github:Ljayx069/vibecoin-mcp
 ```
 
 Or manually in `~/.claude.json` / project `.mcp.json`:
@@ -19,7 +19,7 @@ Or manually in `~/.claude.json` / project `.mcp.json`:
   "mcpServers": {
     "vibecoin": {
       "command": "npx",
-      "args": ["-y", "github:thetriggeredkid-spec/vibecoin-mcp"]
+      "args": ["-y", "github:Ljayx069/vibecoin-mcp"]
     }
   }
 }
@@ -34,7 +34,7 @@ Add the same JSON to `.cursor/mcp.json` in your project (or `~/.cursor/mcp.json`
   "mcpServers": {
     "vibecoin": {
       "command": "npx",
-      "args": ["-y", "github:thetriggeredkid-spec/vibecoin-mcp"]
+      "args": ["-y", "github:Ljayx069/vibecoin-mcp"]
     }
   }
 }
@@ -43,7 +43,7 @@ Add the same JSON to `.cursor/mcp.json` in your project (or `~/.cursor/mcp.json`
 ### Codex CLI
 
 ```bash
-codex mcp add vibecoin -- npx -y github:thetriggeredkid-spec/vibecoin-mcp
+codex mcp add vibecoin -- npx -y github:Ljayx069/vibecoin-mcp
 ```
 
 Or manually in `~/.codex/config.toml`:
@@ -51,7 +51,7 @@ Or manually in `~/.codex/config.toml`:
 ```toml
 [mcp_servers.vibecoin]
 command = "npx"
-args = ["-y", "github:thetriggeredkid-spec/vibecoin-mcp"]
+args = ["-y", "github:Ljayx069/vibecoin-mcp"]
 ```
 
 Codex registers MCP servers globally, so the server may start outside your project directory — the `launch` tool takes a `project_dir` override for exactly this case (your agent will pass it when the preview looks off).
@@ -59,7 +59,7 @@ Codex registers MCP servers globally, so the server may start outside your proje
 ### From a clone (any client)
 
 ```bash
-git clone https://github.com/thetriggeredkid-spec/vibecoin-mcp.git
+git clone https://github.com/Ljayx069/vibecoin-mcp.git
 cd vibecoin-mcp && npm install && npm run build
 ```
 

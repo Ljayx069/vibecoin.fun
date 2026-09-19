@@ -33,7 +33,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/thetriggeredkid-spec/vibecoin-mcp.git"
+    "url": "https://github.com/Ljayx069/vibecoin-mcp.git"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
