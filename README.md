@@ -3,8 +3,8 @@
 Tokenize your repo from the same coding session you're building it in. An agent-native launchpad for Solana **and Robinhood Chain**: MCP server + site, wrapping pump.fun via the PumpPortal Local Transaction API on Solana and launching through Pons (ponsfamily.com) on Robinhood Chain — quotes in ETH or tokenized stock pairs, creator tax on top of the 1% standard fee, optional reward vault. Works with Claude Code, Cursor, Codex CLI, or any MCP client. Non-custodial — every transaction is signed locally.
 
 - **Site:** https://vibecoin.fun (landing + /projects + public JSON API)
-- **MCP install (Claude Code):** `claude mcp add vibecoin -- npx -y github:Ljayx069/vibecoin-mcp`
-- **Cursor / Codex CLI / other clients:** see [mcp/README.md](mcp/README.md#install)
+- **MCP repo (fork it):** https://github.com/ivanbvz/vibecoin-mcp
+- **Install:** add `npx github:ivanbvz/vibecoin-mcp` to any MCP client — one-liners for Claude Code, Cursor and Codex CLI in [mcp/README.md](mcp/README.md#install)
 
 ## Layout
 

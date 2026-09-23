@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://vibecoin.fun"),
   title: "vibecoin — launch coins on Solana or Robinhood Chain",
   description:
-    "Tokenize your repo from a Claude Code session. SPL tokens on pump.fun's bonding curve or Pons launches on Robinhood Chain with stock-pair quotes — keys that never leave your machine, creator fees that fund your agent.",
+    "Tokenize your repo from your coding agent. SPL tokens on pump.fun's bonding curve or Pons launches on Robinhood Chain with stock-pair quotes — keys that never leave your machine, creator fees that fund your agent.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

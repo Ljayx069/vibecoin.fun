@@ -4,15 +4,17 @@ import Footer from "@/components/Footer";
 import Masthead from "@/components/Masthead";
 import Section from "@/components/Section";
 
-const INSTALL_CMD = "claude mcp add vibecoin -- npx github:Ljayx069/vibecoin-mcp";
 const INSTALL_JSON = `{
   "mcpServers": {
     "vibecoin": {
       "command": "npx",
-      "args": ["github:Ljayx069/vibecoin-mcp"]
+      "args": ["github:ivanbvz/vibecoin-mcp"]
     }
   }
 }`;
+const INSTALL_CMDS = `claude mcp add vibecoin -- npx github:ivanbvz/vibecoin-mcp   # Claude Code
+codex mcp add vibecoin -- npx github:ivanbvz/vibecoin-mcp     # Codex CLI
+# Cursor: add the JSON above to ~/.cursor/mcp.json`;
 
 const TOOLS: [string, string][] = [
   ["wallet", "Create the project's encrypted Solana wallet, check SOL/USDC balance, transfer SOL"],
@@ -56,23 +58,24 @@ export default function Home() {
       <Masthead />
       <main className="mx-auto max-w-3xl space-y-12 px-6 py-12">
         <Section id="install" title="Installation">
-          <p>One command wires the vibecoin MCP into Claude Code:</p>
-          <CodeBlock code={INSTALL_CMD} prompt />
-          <p className="text-muted">
-            Or add it by hand to <Chip>~/.claude.json</Chip>:
+          <p>
+            vibecoin is a standard MCP server — it plugs into <em>any</em> agent that speaks MCP (Claude Code, Cursor,
+            Codex CLI, OpenClaw-style shells, or your own). Add it to your agent&apos;s MCP config:
           </p>
           <CodeBlock code={INSTALL_JSON} />
-          <p className="text-muted">Restart Claude Code and the tools are live in every session.</p>
+          <p className="text-muted">Or one command for the common clients:</p>
+          <CodeBlock code={INSTALL_CMDS} prompt />
+          <p className="text-muted">Restart your agent and the tools are live in every session.</p>
         </Section>
 
         <Section id="how-it-works" title="How it works">
           <p>
-            Open Claude Code inside whatever you&apos;re building and say{" "}
+            Open your coding agent inside whatever you&apos;re building and say{" "}
             <span className="text-accent">&quot;launch this as a coin&quot;</span>. That&apos;s the entire workflow —
             no dashboard, no form, no leaving the terminal.
           </p>
           <p>
-            Claude reads your README, package.json and git remote, drafts the coin (name, ticker, description, links),
+            Your agent reads your README, package.json and git remote, drafts the coin (name, ticker, description, links),
             and shows you exactly what it wants to deploy and what it costs. Nothing is sent until you say yes.
           </p>
           <p>

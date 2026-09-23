@@ -41,7 +41,7 @@ export default function ProjectsTable() {
         <p>No coins here yet — the first one could be the thing you&apos;re building right now.</p>
         <p className="text-muted">
           Install the MCP on the <a href="/#install" className="text-accent hover:text-accent-hover">homepage</a> and
-          tell Claude to launch.
+          tell your agent to launch.
         </p>
       </div>
     );

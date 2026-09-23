@@ -1,49 +1,48 @@
 # vibecoin-mcp
 
-Launch your vibe coded app on Solana **or Robinhood Chain** without leaving your coding agent — Claude Code, Cursor, Codex CLI, or any MCP client. On Solana this server drafts a coin from your repo and deploys it to pump.fun's bonding curve via the PumpPortal Local Transaction API; on Robinhood Chain it launches on **Pons** (ponsfamily.com) — bonding curve → permanently locked Uniswap V4 pool — with quote pairs in ETH or approved tokenized stocks. Your creator fees recycle into an agent budget either way, with keys that never leave your machine.
+Launch your vibe coded app on Solana **or Robinhood Chain** without leaving your coding agent. This is a standard, self-contained **MCP server** — it works with any LLM agent that speaks MCP (Claude Code, Cursor, Codex CLI, or your own client). On Solana it drafts a coin from your repo and deploys it to pump.fun's bonding curve via the PumpPortal Local Transaction API; on Robinhood Chain it launches on **Pons** (ponsfamily.com) — bonding curve → permanently locked Uniswap V4 pool — with quote pairs in ETH or approved tokenized stocks. Your creator fees recycle into an agent budget either way, with keys that never leave your machine.
 
 Site: https://vibecoin.fun · Projects: https://vibecoin.fun/projects
 
 ## Install
 
+The server talks plain stdio MCP — whatever your agent or client is, point it at:
+
+```bash
+npx -y github:ivanbvz/vibecoin-mcp
+```
+
+### Any MCP client (generic config)
+
+Add this to your client's MCP config (the file name differs per client):
+
+```json
+{
+  "mcpServers": {
+    "vibecoin": {
+      "command": "npx",
+      "args": ["-y", "github:ivanbvz/vibecoin-mcp"]
+    }
+  }
+}
+```
+
 ### Claude Code
 
 ```bash
-claude mcp add vibecoin -- npx -y github:Ljayx069/vibecoin-mcp
+claude mcp add vibecoin -- npx -y github:ivanbvz/vibecoin-mcp
 ```
 
-Or manually in `~/.claude.json` / project `.mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "vibecoin": {
-      "command": "npx",
-      "args": ["-y", "github:Ljayx069/vibecoin-mcp"]
-    }
-  }
-}
-```
+Or add the JSON above to `~/.claude.json` / project `.mcp.json`.
 
 ### Cursor
 
-Add the same JSON to `.cursor/mcp.json` in your project (or `~/.cursor/mcp.json` for all projects):
-
-```json
-{
-  "mcpServers": {
-    "vibecoin": {
-      "command": "npx",
-      "args": ["-y", "github:Ljayx069/vibecoin-mcp"]
-    }
-  }
-}
-```
+Add the JSON above to `.cursor/mcp.json` in your project (or `~/.cursor/mcp.json` for all projects).
 
 ### Codex CLI
 
 ```bash
-codex mcp add vibecoin -- npx -y github:Ljayx069/vibecoin-mcp
+codex mcp add vibecoin -- npx -y github:ivanbvz/vibecoin-mcp
 ```
 
 Or manually in `~/.codex/config.toml`:
@@ -51,7 +50,7 @@ Or manually in `~/.codex/config.toml`:
 ```toml
 [mcp_servers.vibecoin]
 command = "npx"
-args = ["-y", "github:Ljayx069/vibecoin-mcp"]
+args = ["-y", "github:ivanbvz/vibecoin-mcp"]
 ```
 
 Codex registers MCP servers globally, so the server may start outside your project directory — the `launch` tool takes a `project_dir` override for exactly this case (your agent will pass it when the preview looks off).
@@ -59,7 +58,7 @@ Codex registers MCP servers globally, so the server may start outside your proje
 ### From a clone (any client)
 
 ```bash
-git clone https://github.com/Ljayx069/vibecoin-mcp.git
+git clone https://github.com/ivanbvz/vibecoin-mcp.git
 cd vibecoin-mcp && npm install && npm run build
 ```
 

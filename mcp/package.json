@@ -1,7 +1,7 @@
 {
   "name": "vibecoin-mcp",
   "version": "0.2.0",
-  "description": "Launch your vibe coded app on Solana or Robinhood Chain from Claude Code, Cursor, Codex CLI or any MCP client — pump.fun and Pons launchpad MCP server with local-only keys",
+  "description": "Launch your vibe coded app on Solana or Robinhood Chain from any MCP-compatible agent (Claude Code, Cursor, Codex CLI, or your own) — pump.fun and Pons launchpad MCP server with local-only keys",
   "type": "module",
   "bin": {
     "vibecoin-mcp": "dist/index.js"
@@ -33,7 +33,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Ljayx069/vibecoin-mcp.git"
+    "url": "https://github.com/ivanbvz/vibecoin-mcp.git"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
