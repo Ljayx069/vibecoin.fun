@@ -4,17 +4,12 @@ import Footer from "@/components/Footer";
 import Masthead from "@/components/Masthead";
 import Section from "@/components/Section";
 
-const INSTALL_JSON = `{
-  "mcpServers": {
-    "vibecoin": {
-      "command": "npx",
-      "args": ["github:ivanbvz/vibecoin-mcp"]
-    }
-  }
-}`;
-const INSTALL_CMDS = `claude mcp add vibecoin -- npx github:ivanbvz/vibecoin-mcp   # Claude Code
-codex mcp add vibecoin -- npx github:ivanbvz/vibecoin-mcp     # Codex CLI
-# Cursor: add the JSON above to ~/.cursor/mcp.json`;
+const PROMPT_CLAUDE =
+  "Install the vibecoin MCP server by running: claude mcp add vibecoin -- npx -y github:ivanbvz/vibecoin-mcp";
+const PROMPT_CODEX =
+  "Install the vibecoin MCP server by running: codex mcp add vibecoin -- npx -y github:ivanbvz/vibecoin-mcp";
+const PROMPT_CURSOR =
+  'Add the vibecoin MCP server to my Cursor MCP config at ~/.cursor/mcp.json: a server named "vibecoin" with command "npx" and args ["-y", "github:ivanbvz/vibecoin-mcp"].';
 
 const TOOLS: [string, string][] = [
   ["wallet", "Create the project's encrypted Solana wallet, check SOL/USDC balance, transfer SOL"],
@@ -59,13 +54,18 @@ export default function Home() {
       <main className="mx-auto max-w-3xl space-y-12 px-6 py-12">
         <Section id="install" title="Installation">
           <p>
-            vibecoin is a standard MCP server — it plugs into <em>any</em> agent that speaks MCP (Claude Code, Cursor,
-            Codex CLI, OpenClaw-style shells, or your own). Add it to your agent&apos;s MCP config:
+            No terminal needed — paste the prompt for your platform into your agent and it installs the server itself:
           </p>
-          <CodeBlock code={INSTALL_JSON} />
-          <p className="text-muted">Or one command for the common clients:</p>
-          <CodeBlock code={INSTALL_CMDS} prompt />
-          <p className="text-muted">Restart your agent and the tools are live in every session.</p>
+          <h3 className="pt-2 font-semibold text-muted">Claude Code</h3>
+          <CodeBlock code={PROMPT_CLAUDE} />
+          <h3 className="pt-2 font-semibold text-muted">Codex</h3>
+          <CodeBlock code={PROMPT_CODEX} />
+          <h3 className="pt-2 font-semibold text-muted">Cursor</h3>
+          <CodeBlock code={PROMPT_CURSOR} />
+          <p className="text-muted">
+            Restart your agent afterwards and the tools are live. On any other MCP client, the prompt is the same idea
+            in that client&apos;s words — the server is <Chip>npx -y github:ivanbvz/vibecoin-mcp</Chip>.
+          </p>
         </Section>
 
         <Section id="how-it-works" title="How it works">
