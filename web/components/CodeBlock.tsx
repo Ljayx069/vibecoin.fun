@@ -22,7 +22,7 @@ export default function CodeBlock({ code, prompt = false }: { code: string; prom
       >
         {copied ? "copied" : "copy"}
       </button>
-      <pre className="overflow-x-auto p-4 text-xs leading-relaxed text-accent">
+      <pre className="p-4 text-xs leading-relaxed break-all whitespace-pre-wrap text-accent">
         <code>{prompt ? `$ ${code}` : code}</code>
       </pre>
     </div>
