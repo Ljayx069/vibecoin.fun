@@ -12,6 +12,7 @@ import { launchAndBuyAbi } from "./abi/launchAndBuy.js";
 import { launchDeployerAbi } from "./abi/launchDeployer.js";
 import { memeHookAbi } from "./abi/memeHook.js";
 import { buybackVaultAbi } from "./abi/buybackVault.js";
+import { feeEscrowAbi } from "./abi/feeEscrow.js";
 import { NATIVE_PAIR_TOKEN, V2_FACTORY_FIRST_LOG_BLOCK } from "./evmchain.js";
 
 /**
@@ -681,6 +682,42 @@ export function buildSetBuybackTx(token: Address, enabled: boolean): BuiltTx {
       functionName: "setBuybackEnabled",
       args: [token, enabled],
     }),
+    value: 0n,
+  };
+}
+
+// ---- creator fee claims (fee escrow) ----
+
+/**
+ * Creator fees from every Pons launch accrue per-recipient in the shared fee
+ * escrow — one claim pays everything owed, across all coins and both phases
+ * (curve fees and graduated pool fees are swept here on a schedule).
+ */
+export async function readClaimableFees(client: PublicClient, recipient: Address, asset?: Address): Promise<bigint> {
+  if (asset === undefined) {
+    return client.readContract({
+      address: PONS.feeEscrow,
+      abi: feeEscrowAbi,
+      functionName: "balanceOf",
+      args: [recipient],
+    });
+  }
+  return client.readContract({
+    address: PONS.feeEscrow,
+    abi: feeEscrowAbi,
+    functionName: "balanceOfToken",
+    args: [recipient, asset],
+  });
+}
+
+/** Claim every fee owed to the caller: native ETH, or one ERC-20 quote asset. */
+export function buildClaimFeesTx(asset?: Address): BuiltTx {
+  return {
+    to: PONS.feeEscrow,
+    data:
+      asset === undefined
+        ? encodeFunctionData({ abi: feeEscrowAbi, functionName: "claim" })
+        : encodeFunctionData({ abi: feeEscrowAbi, functionName: "claimToken", args: [asset] }),
     value: 0n,
   };
 }

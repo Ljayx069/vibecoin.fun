@@ -88,8 +88,8 @@ Nothing is ever sent without an explicit preview → approve → `confirm: true`
 | `pons_pairs` | List the live approved Pons quote assets — ETH plus tokenized stock pairs, index funds and stablecoins — with graduation thresholds |
 | `pons_launch` | Draft a coin from the repo and launch it on Pons: quote pair, creator tax on top of the 1% standard fee, reward vault (buyback), atomic dev buy, predicted token address |
 | `pons_fees` | Post-launch fee settings: status (recipient, tax, reward vault), transfer the fee receiving address, toggle the reward vault |
-| `my-coins` | List every coin launched from this machine with live market data |
-| `collect-fees` | Claim accrued pump.fun creator fees (all coins at once) |
+| `my-coins` | List every coin launched from this machine on both chains — live market data (Solana) and on-chain status (Pons) |
+| `collect-fees` | Claim accrued creator fees on both chains in one command — pump.fun payouts (all coins at once) plus the Pons fee escrow (ETH and each stock-pair quote you launched with) |
 | `fund-agent` | Collect fees → swap SOL→USDC via Jupiter → hold the budget in the agent's wallet |
 | `lock` | Lock a % of your own tokens via Streamflow; returns a shareable proof link |
 | `info` | Fee table, config paths, wallet list, links |

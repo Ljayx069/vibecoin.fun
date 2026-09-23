@@ -23,8 +23,8 @@ const TOOLS: [string, string][] = [
   ["pons_pairs", "Live Pons quote assets — ETH plus tokenized stock pairs, index funds and stablecoins, with graduation thresholds"],
   ["pons_launch", "Draft a coin from your repo and launch it on Pons: quote pair, creator tax on top of the 1% standard fee, reward vault, atomic dev buy"],
   ["pons_fees", "Post-launch Pons fee settings: status, transfer the fee recipient, toggle the reward vault"],
-  ["my-coins", "Every coin launched from this machine, with live market data"],
-  ["collect-fees", "Claim your accrued pump.fun creator fees"],
+  ["my-coins", "Every coin launched from this machine on both chains, with live market data (Solana) and on-chain status (Pons)"],
+  ["collect-fees", "Claim creator fees on both chains in one command — pump.fun payouts plus the Pons fee escrow (ETH and stock-pair quotes)"],
   ["fund-agent", "Collect fees and swap SOL→USDC so your agent has a budget"],
   ["lock", "Lock a % of your own tokens via Streamflow and get a proof link"],
   ["info", "Fee table, config, wallets, links"],
@@ -195,7 +195,8 @@ export default function Home() {
             Post-launch, <Chip>pons_fees</Chip> manages what Pons lets a creator change: transfer the fee recipient
             (immediate, also re-points the reward vault) and toggle the reward vault. The tax rate itself is frozen
             forever — there is no setter on the contract. Protocol-side fees are owner-only globals, never per-launch
-            settings. Pons is a third-party platform, not a Robinhood product.
+            settings. Claim what you&apos;re owed with <Chip>collect-fees</Chip> — one command covers both chains. Pons
+            is a third-party platform, not a Robinhood product.
           </p>
         </Section>
 

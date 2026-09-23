@@ -144,7 +144,7 @@ export async function draftFromProject(cwd: string): Promise<TokenDraft> {
   const description =
     readme.paragraph ??
     pkg.description ??
-    "Launched from a Claude Code session with vibecoin.";
+    "Launched from a vibe coding session with vibecoin.";
 
   let imagePath: string | undefined;
   let imageSource: TokenDraft["imageSource"] = "placeholder";

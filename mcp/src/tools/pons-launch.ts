@@ -4,6 +4,7 @@ import { isDryRun } from "../config.js";
 import { draftFromProject } from "../draft.js";
 import { EXPLORER_EVM, getPublicClient, getWalletClient } from "../evmchain.js";
 import { createEvmWallet, evmWalletExists, loadEvmPrivateKey, readEvmWalletFile } from "../evmkeystore.js";
+import { recordPonsLaunch } from "../registry.js";
 import {
   EMPTY_SOCIALS,
   buildLaunchTx,
@@ -332,6 +333,21 @@ Re-run with dry_run: false (and confirm: true) to launch for real.`);
 
       const hash = await wallet.sendTransaction({ to: tx.to, data: tx.data, value: tx.value });
       const receipt = await client.waitForTransactionReceipt({ hash });
+      recordPonsLaunch({
+        chain: "robinhood",
+        token: predicted.token,
+        curve: predicted.curve,
+        name,
+        symbol,
+        pair: pair.symbol,
+        pairToken: pair.address,
+        creatorTaxBps,
+        buyback,
+        creator: account.address,
+        wallet: walletName,
+        signature: hash,
+        createdAt: new Date().toISOString(),
+      });
 
       return text(`## 🚀 $${symbol} is live on Pons (Robinhood Chain)
 
@@ -340,7 +356,7 @@ Re-run with dry_run: false (and confirm: true) to launch for real.`);
 - Tx: ${EXPLORER_EVM.tx(hash)}${approveHash ? `\n- Approve tx: ${EXPLORER_EVM.tx(approveHash)}` : ""}
 - Explorer: ${EXPLORER_EVM.addr(predicted.token)}
 ${created ? `\nWallet "${walletName}" was auto-created for this launch — its address is ${account.address}.` : ""}
-- You earn ${pct(creatorTaxBps)}% of every curve trade (on top of the protocol's ${pct(context.config.curveFeeBps)}%), paid to your launch wallet${buyback ? " — part of it funds the reward vault" : ""}.
+- You earn ${pct(creatorTaxBps)}% of every curve trade (on top of the protocol's ${pct(context.config.curveFeeBps)}%), paid to your launch wallet${buyback ? " — part of it funds the reward vault" : ""}. Claim with collect-fees anytime.
 - Fee settings (recipient, reward vault) are managed afterwards with pons_fees — the tax rate itself is frozen.
 - Graduation to a permanently locked Uniswap V4 pool happens at ${formatUnits(pair.native ? context.config.graduationThreshold : pair.graduationThreshold, pair.decimals)} ${pair.native ? "ETH" : pair.symbol} raised — anyone can trigger the sweep.${receipt.status !== "success" ? "\n- ⚠ receipt status is not success — check the tx above" : ""}`);
     } catch (e) {
