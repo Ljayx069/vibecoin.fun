@@ -18,7 +18,7 @@ export default function CodeBlock({ code, prompt = false }: { code: string; prom
       <button
         onClick={copy}
         aria-label="Copy to clipboard"
-        className="absolute top-2 right-2 rounded border border-hairline px-2 py-0.5 text-xs text-muted opacity-0 transition-opacity group-hover:opacity-100 hover:text-accent focus:opacity-100"
+        className="absolute top-2 right-2 rounded border border-muted bg-background px-2 py-0.5 text-xs text-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:border-accent hover:text-accent focus:opacity-100"
       >
         {copied ? "copied" : "copy"}
       </button>
