@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Mirrors mcp/ to the standalone vibecoin-mcp repo so `npx github:thetriggeredkid-spec/vibecoin-mcp` works
+# Mirrors mcp/ to the standalone vibecoin-mcp repo so `npx github:ivanbvz/vibecoin-mcp` works
 # (npx needs package.json at the repo root). Run from the monorepo root after committing.
 set -euo pipefail
 
-REMOTE="${1:-https://github.com/thetriggeredkid-spec/vibecoin-mcp.git}"
+REMOTE="${1:-https://github.com/ivanbvz/vibecoin-mcp.git}"
 BRANCH="mcp-publish"
 
 git branch -D "$BRANCH" 2>/dev/null || true
