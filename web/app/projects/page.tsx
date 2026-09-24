@@ -5,7 +5,7 @@ import ProjectsTable from "@/components/ProjectsTable";
 
 export const metadata: Metadata = {
   title: "Projects | vibecoin",
-  description: "Coins launched through the vibecoin MCP on Solana — every one with a repo and a live URL.",
+  description: "Coins launched through the vibecoin MCP on Solana and Robinhood Chain — every one with a repo and a live URL.",
 };
 
 export default function ProjectsPage() {
@@ -16,7 +16,7 @@ export default function ProjectsPage() {
         <section>
           <h2 className="text-xl font-semibold">Launched projects</h2>
           <p className="mt-2 text-sm text-muted">
-            Real apps with real repos, tokenized straight from the terminal:
+            Real apps with real repos, tokenized straight from the terminal — click a token for the full picture:
           </p>
         </section>
         <ProjectsTable />

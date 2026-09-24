@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { fmtPrice, fmtUsd, truncate } from "@/lib/format";
+import { fmtPrice, fmtUsd } from "@/lib/format";
 
 interface Project {
   mint: string;
@@ -15,6 +15,8 @@ interface Project {
   twitter?: string;
   telegram?: string;
   pair?: string;
+  creator?: string;
+  signature?: string;
   createdAt: string;
   market: {
     priceUsd?: number;
@@ -68,29 +70,52 @@ function telegramUrl(raw: string): string {
   return raw.startsWith("http") ? raw : `https://t.me/${raw.replace(/^@/, "")}`;
 }
 
-function TokenImage({ project }: { project: Project }) {
+function chainInfo(p: Project) {
+  const pons = p.chain === "robinhood";
+  return {
+    pons,
+    label: pons ? "Pons" : "SOL",
+    tradeUrl: pons ? `https://www.ponsfamily.com/launchpad/${p.mint}` : `https://pump.fun/coin/${p.mint}`,
+    tradeName: pons ? "Pons" : "pump.fun",
+    explorerUrl: pons
+      ? `https://robinhoodchain.blockscout.com/address/${p.mint}`
+      : `https://solscan.io/token/${p.mint}`,
+    explorerName: pons ? "Blockscout" : "Solscan",
+    txUrl: p.signature
+      ? pons
+        ? `https://robinhoodchain.blockscout.com/tx/${p.signature}`
+        : `https://solscan.io/tx/${p.signature}`
+      : undefined,
+  };
+}
+
+function TokenImage({ p, size = "md" }: { p: Project; size?: "md" | "lg" }) {
   const [failed, setFailed] = useState(false);
-  if (!project.image || failed) {
+  const cls = size === "lg" ? "h-12 w-12 text-lg" : "h-9 w-9 text-sm";
+  if (!p.image || failed) {
     return (
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-hairline bg-code text-sm font-semibold text-accent">
-        {project.symbol.slice(0, 1)}
+      <div
+        className={`flex ${cls} shrink-0 items-center justify-center rounded-full border border-hairline bg-code font-semibold text-accent`}
+      >
+        {p.symbol.slice(0, 1)}
       </div>
     );
   }
   // eslint-disable-next-line @next/next/no-img-element
   return (
     <img
-      src={project.image}
+      src={p.image}
       alt=""
-      className="h-9 w-9 shrink-0 rounded-full border border-hairline object-cover"
+      className={`${cls} shrink-0 rounded-full border border-hairline object-cover`}
       onError={() => setFailed(true)}
     />
   );
 }
 
-function CopyCA({ address }: { address: string }) {
+function CopyCA({ address, full = false }: { address: string; full?: boolean }) {
   const [copied, setCopied] = useState(false);
-  async function copy() {
+  async function copy(e: React.MouseEvent) {
+    e.stopPropagation();
     try {
       await navigator.clipboard.writeText(address);
       setCopied(true);
@@ -103,9 +128,9 @@ function CopyCA({ address }: { address: string }) {
     <button
       onClick={copy}
       title={`${address} — click to copy`}
-      className="cursor-pointer rounded bg-code px-1.5 py-0.5 font-mono text-xs text-muted transition-colors hover:text-accent"
+      className="cursor-pointer rounded bg-code px-1.5 py-0.5 font-mono text-xs break-all text-muted transition-colors hover:text-accent"
     >
-      {copied ? "copied" : `${address.slice(0, 6)}…${address.slice(-4)}`}
+      {copied ? "copied ✓" : full ? address : `${address.slice(0, 6)}…${address.slice(-4)}`}
     </button>
   );
 }
@@ -117,21 +142,163 @@ function ChainBadge({ chain }: { chain?: Project["chain"] }) {
       className={`rounded border px-1.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase ${
         pons ? "border-accent text-accent" : "border-hairline text-muted"
       }`}
-      title={pons ? "Pons on Robinhood Chain" : "pump.fun on Solana"}
     >
       {pons ? "Pons" : "SOL"}
     </span>
   );
 }
 
+function Change({ value }: { value?: number }) {
+  if (value === undefined) return null;
+  return (
+    <span className={`text-xs ${value >= 0 ? "text-accent" : "text-red-400"}`}>
+      {value >= 0 ? "+" : ""}
+      {value}%
+    </span>
+  );
+}
+
+function Stat({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-md border border-hairline bg-code px-3 py-2">
+      <div className="text-[10px] tracking-wide text-muted uppercase">{label}</div>
+      <div className="mt-0.5 text-sm">{children}</div>
+    </div>
+  );
+}
+
+function LinkSet({ p, className = "" }: { p: Project; className?: string }) {
+  const c = chainInfo(p);
+  return (
+    <div className={`flex flex-wrap gap-x-4 gap-y-1.5 text-xs ${className}`}>
+      <a href={c.tradeUrl} className="text-accent hover:text-accent-hover" onClick={(e) => e.stopPropagation()}>
+        Trade on {c.tradeName} →
+      </a>
+      <a href={c.explorerUrl} className="text-muted hover:text-accent" onClick={(e) => e.stopPropagation()}>
+        {c.explorerName}
+      </a>
+      {p.market?.dexUrl && (
+        <a href={p.market.dexUrl} className="text-muted hover:text-accent" onClick={(e) => e.stopPropagation()}>
+          Chart
+        </a>
+      )}
+      {p.website && (
+        <a href={p.website} className="text-muted hover:text-accent" onClick={(e) => e.stopPropagation()}>
+          Website
+        </a>
+      )}
+      {p.twitter && (
+        <a href={twitterUrl(p.twitter)} className="text-muted hover:text-accent" onClick={(e) => e.stopPropagation()}>
+          X
+        </a>
+      )}
+      {p.telegram && (
+        <a href={telegramUrl(p.telegram)} className="text-muted hover:text-accent" onClick={(e) => e.stopPropagation()}>
+          Telegram
+        </a>
+      )}
+      {p.github && (
+        <a href={p.github} className="text-muted hover:text-accent" onClick={(e) => e.stopPropagation()}>
+          GitHub
+        </a>
+      )}
+      {c.txUrl && (
+        <a href={c.txUrl} className="text-muted hover:text-accent" onClick={(e) => e.stopPropagation()}>
+          Launch tx
+        </a>
+      )}
+    </div>
+  );
+}
+
+function ProjectCard({
+  p,
+  expanded,
+  onToggle,
+}: {
+  p: Project;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  const c = chainInfo(p);
+  return (
+    <div
+      id={p.mint}
+      className={`rounded-lg border transition-colors ${expanded ? "border-accent" : "border-hairline hover:border-muted"}`}
+    >
+      <button onClick={onToggle} className="block w-full cursor-pointer px-4 py-4 text-left sm:px-5">
+        <div className="flex items-center gap-3">
+          <TokenImage p={p} />
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <span className="font-medium">{p.name}</span>
+              <code className="rounded bg-code px-1.5 py-0.5 text-xs">${p.symbol}</code>
+              <ChainBadge chain={p.chain} />
+              {c.pons && p.pair && p.pair !== "ETH" && <span className="text-xs text-muted">quoted in {p.pair}</span>}
+            </div>
+            <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-0.5 text-xs text-muted">
+              <span>
+                {fmtPrice(p.market?.priceUsd)} <Change value={p.market?.priceChange24h} />
+              </span>
+              <span>mcap {fmtUsd(p.market?.marketCapUsd)}</span>
+              <span className="hidden sm:inline">vol {fmtUsd(p.market?.volume24hUsd)}</span>
+            </div>
+          </div>
+          <span
+            className={`shrink-0 text-muted transition-transform ${expanded ? "rotate-180" : ""}`}
+            aria-hidden="true"
+          >
+            ▾
+          </span>
+        </div>
+      </button>
+
+      {expanded && (
+        <div className="border-t border-hairline px-4 py-4 sm:px-5">
+          {p.description && <p className="max-w-2xl text-sm leading-relaxed">{p.description}</p>}
+
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <TokenImage p={p} size="lg" />
+            <div className="flex flex-col gap-1">
+              <CopyCA address={p.mint} full />
+              <span className="text-xs text-muted">
+                launched {new Date(p.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
+                {c.pons ? " · Pons on Robinhood Chain" : " · pump.fun on Solana"}
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <Stat label="Price">
+              {fmtPrice(p.market?.priceUsd)} <Change value={p.market?.priceChange24h} />
+            </Stat>
+            <Stat label="Market cap">{fmtUsd(p.market?.marketCapUsd)}</Stat>
+            <Stat label="Volume 24h">{fmtUsd(p.market?.volume24hUsd)}</Stat>
+            <Stat label={c.pons ? "Quote pair" : "Chain"}>{c.pons ? (p.pair ?? "ETH") : "Solana"}</Stat>
+          </div>
+
+          <LinkSet p={p} className="mt-4" />
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ProjectsTable() {
   const [state, setState] = useState<State>({ kind: "loading" });
   const [sort, setSort] = useState<SortKey>("mcap");
+  const [openMint, setOpenMint] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/projects")
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then((d) => setState({ kind: "ready", projects: d.projects ?? [] }))
+      .then((d) => {
+        const projects: Project[] = d.projects ?? [];
+        setState({ kind: "ready", projects });
+        // /projects#<token> links (e.g. from the MCP launch result) open that card.
+        const hash = window.location.hash.slice(1);
+        if (hash && projects.some((p) => p.mint === hash)) setOpenMint(hash);
+      })
       .catch(() => setState({ kind: "error" }));
   }, []);
 
@@ -155,8 +322,8 @@ export default function ProjectsTable() {
     );
 
   return (
-    <div className="overflow-x-auto">
-      <div className="mb-3 flex flex-wrap items-center gap-x-1.5 gap-y-1.5 text-xs">
+    <div>
+      <div className="mb-4 flex flex-wrap items-center gap-x-1.5 gap-y-1.5 text-xs">
         <span className="mr-1 text-muted">Sort:</span>
         {SORTS.map((s) => (
           <button
@@ -172,99 +339,16 @@ export default function ProjectsTable() {
           </button>
         ))}
       </div>
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-hairline">
-            {["Token", "Price", "Market cap", "Volume 24h", "Links", "Trade"].map((h) => (
-              <th key={h} className="py-2 pr-4 text-left text-xs font-semibold tracking-wide text-muted uppercase">
-                {h}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-hairline">
-          {projects.map((p) => {
-            const pons = p.chain === "robinhood";
-            const tradeUrl = pons ? `https://www.ponsfamily.com/launchpad/${p.mint}` : `https://pump.fun/coin/${p.mint}`;
-            const explorerUrl = pons
-              ? `https://robinhoodchain.blockscout.com/address/${p.mint}`
-              : `https://solscan.io/token/${p.mint}`;
-            return (
-              <tr key={p.mint} id={p.mint}>
-                <td className="py-3 pr-4 align-top">
-                  <div className="flex items-start gap-2.5">
-                    <TokenImage project={p} />
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-medium">{p.name}</span>
-                        <code className="rounded bg-code px-1.5 py-0.5 text-xs">${p.symbol}</code>
-                        <ChainBadge chain={p.chain} />
-                      </div>
-                      <div className="mt-1">
-                        <CopyCA address={p.mint} />
-                      </div>
-                      {p.description && (
-                        <p className="mt-1 max-w-xs text-xs text-muted" title={p.description}>
-                          {truncate(p.description.split("\n")[0], 80)}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </td>
-                <td className="py-3 pr-4 align-top whitespace-nowrap">
-                  {fmtPrice(p.market?.priceUsd)}
-                  {p.market?.priceChange24h !== undefined && (
-                    <span className={`ml-1 text-xs ${p.market.priceChange24h >= 0 ? "text-accent" : "text-red-400"}`}>
-                      {p.market.priceChange24h >= 0 ? "+" : ""}
-                      {p.market.priceChange24h}%
-                    </span>
-                  )}
-                </td>
-                <td className="py-3 pr-4 align-top whitespace-nowrap">{fmtUsd(p.market?.marketCapUsd)}</td>
-                <td className="py-3 pr-4 align-top whitespace-nowrap">{fmtUsd(p.market?.volume24hUsd)}</td>
-                <td className="py-3 pr-4 align-top">
-                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs">
-                    <a href={explorerUrl} className="text-muted hover:text-accent">
-                      {pons ? "Scout" : "Solscan"}
-                    </a>
-                    {p.market?.dexUrl && (
-                      <a href={p.market.dexUrl} className="text-muted hover:text-accent">
-                        Chart
-                      </a>
-                    )}
-                    {p.website && (
-                      <a href={p.website} className="text-muted hover:text-accent">
-                        Web
-                      </a>
-                    )}
-                    {p.twitter && (
-                      <a href={twitterUrl(p.twitter)} className="text-muted hover:text-accent">
-                        X
-                      </a>
-                    )}
-                    {p.telegram && (
-                      <a href={telegramUrl(p.telegram)} className="text-muted hover:text-accent">
-                        TG
-                      </a>
-                    )}
-                    {p.github && (
-                      <a href={p.github} className="text-muted hover:text-accent">
-                        GitHub
-                      </a>
-                    )}
-                  </div>
-                </td>
-                <td className="py-3 align-top whitespace-nowrap">
-                  <a href={tradeUrl} className="font-medium text-accent hover:text-accent-hover">
-                    Trade →
-                  </a>
-                  {pons && p.pair && p.pair !== "ETH" && <div className="mt-1 text-xs text-muted">quoted in {p.pair}</div>}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="space-y-3">
+        {projects.map((p) => (
+          <ProjectCard
+            key={p.mint}
+            p={p}
+            expanded={openMint === p.mint}
+            onToggle={() => setOpenMint(openMint === p.mint ? null : p.mint)}
+          />
+        ))}
+      </div>
     </div>
   );
 }
