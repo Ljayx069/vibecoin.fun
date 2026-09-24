@@ -4,7 +4,7 @@ import { isDryRun } from "../config.js";
 import { draftFromProject } from "../draft.js";
 import { EXPLORER_EVM, getPublicClient, getWalletClient } from "../evmchain.js";
 import { createEvmWallet, evmWalletExists, loadEvmPrivateKey, readEvmWalletFile } from "../evmkeystore.js";
-import { recordPonsLaunch } from "../registry.js";
+import { postToSiteRegistry, recordPonsLaunch } from "../registry.js";
 import {
   EMPTY_SOCIALS,
   buildLaunchTx,
@@ -349,6 +349,23 @@ Re-run with dry_run: false (and confirm: true) to launch for real.`);
         signature: hash,
         createdAt: new Date().toISOString(),
       });
+      const reg = await postToSiteRegistry({
+        mint: predicted.token,
+        chain: "robinhood",
+        name,
+        symbol,
+        description,
+        image: args.logo_url,
+        github: draft.github,
+        website: website || undefined,
+        twitter: args.twitter,
+        telegram: args.telegram,
+        pair: pair.symbol,
+        creator: account.address,
+        wallet: walletName,
+        signature: hash,
+        createdAt: new Date().toISOString(),
+      });
 
       return text(`## 🚀 $${symbol} is live on Pons (Robinhood Chain)
 
@@ -356,6 +373,8 @@ Re-run with dry_run: false (and confirm: true) to launch for real.`);
 - Curve: ${predicted.curve}
 - Tx: ${EXPLORER_EVM.tx(hash)}${approveHash ? `\n- Approve tx: ${EXPLORER_EVM.tx(approveHash)}` : ""}
 - Explorer: ${EXPLORER_EVM.addr(predicted.token)}
+- Pons page: https://www.ponsfamily.com/launchpad/${predicted.token}
+- Projects page: https://vibecoin.fun/projects#${predicted.token}${reg.ok ? "" : `\n- Registry note: ${reg.note}`}
 ${created ? `\nWallet "${walletName}" was auto-created for this launch — its address is ${account.address}.` : ""}
 - You earn ${pct(creatorTaxBps)}% of every curve trade (on top of the protocol's ${pct(context.config.curveFeeBps)}%), paid to your launch wallet${buyback ? " — part of it funds the reward vault" : ""}. Claim with collect-fees anytime.
 - Fee settings (recipient, reward vault) are managed afterwards with pons_fees — the tax rate itself is frozen.

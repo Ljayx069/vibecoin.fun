@@ -5,12 +5,16 @@ import { fetchWithFallback } from "./pumpportal.js";
 
 export interface LaunchRecord {
   mint: string;
+  chain?: "solana" | "robinhood";
   name: string;
   symbol: string;
   description: string;
   image?: string;
   github?: string;
   website?: string;
+  twitter?: string;
+  telegram?: string;
+  pair?: string;
   creator: string;
   wallet: string;
   signature: string;

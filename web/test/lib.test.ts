@@ -37,6 +37,23 @@ describe("validate", () => {
   it("rejects a bad mint", () => {
     expect(() => validateLaunch({ ...valid, mint: "not-a-mint" })).toThrow();
   });
+  it("accepts a robinhood (EVM) launch record with links and pair", () => {
+    const rec = validateLaunch({
+      ...valid,
+      mint: "0x449BEE1B8344428EC25617d405f22C21410B4fe4",
+      creator: "0xd14F2662a9df0e6E15c14882348Ac621da84e099",
+      chain: "robinhood",
+      pair: "NVDA",
+      twitter: "https://x.com/test",
+      telegram: "@test",
+    });
+    expect(rec.chain).toBe("robinhood");
+    expect(rec.pair).toBe("NVDA");
+    expect(rec.twitter).toBe("https://x.com/test");
+  });
+  it("rejects an invalid chain value", () => {
+    expect(() => validateLaunch({ ...valid, chain: "ethereum" })).toThrow();
+  });
   it("rejects javascript: urls", () => {
     expect(() => validateLaunch({ ...valid, website: "javascript:alert(1)" })).toThrow();
   });

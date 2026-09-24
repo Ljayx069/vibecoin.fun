@@ -1,19 +1,28 @@
 import { z } from "zod";
 
 const b58 = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+const evmAddr = /^0x[0-9a-fA-F]{40}$/;
+const tokenAddress = z
+  .string()
+  .regex(new RegExp(`^(?:${b58.source}|${evmAddr.source})$`), "must be a base58 Solana address or a 0x EVM address");
 const httpUrl = z.string().url().refine((u) => u.startsWith("http://") || u.startsWith("https://"), {
   message: "must be an http(s) url",
 });
 
 export const launchRecordSchema = z.object({
-  mint: z.string().regex(b58, "mint must be a base58 Solana address"),
-  name: z.string().min(1).max(32),
-  symbol: z.string().min(1).max(10),
+  mint: tokenAddress,
+  chain: z.enum(["solana", "robinhood"]).optional(),
+  name: z.string().min(1).max(64),
+  symbol: z.string().min(1).max(16),
   description: z.string().max(1200),
   image: httpUrl.optional(),
   github: httpUrl.optional(),
   website: httpUrl.optional(),
-  creator: z.string().regex(b58, "creator must be a base58 Solana address"),
+  twitter: z.string().max(200).optional(),
+  telegram: z.string().max(200).optional(),
+  /** Pons only: the quote asset the launch was priced in ("ETH" for native). */
+  pair: z.string().max(32).optional(),
+  creator: tokenAddress,
   wallet: z.string().max(64).optional(),
   signature: z.string().max(120),
   createdAt: z.string().datetime(),

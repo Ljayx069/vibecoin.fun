@@ -180,6 +180,8 @@ Re-run with dry_run: false (and confirm: true) to launch for real.`);
         image: imageUri,
         github: meta.github,
         website: meta.website,
+        twitter: meta.twitter,
+        telegram: meta.telegram,
         creator: file.publicKey,
         wallet: walletName,
         signature,
