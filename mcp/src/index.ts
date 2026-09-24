@@ -14,14 +14,18 @@ import { ponsPairsTool } from "./tools/pons-pairs.js";
 import { walletTool } from "./tools/wallet.js";
 
 const server = new McpServer(
-  { name: "vibecoin", version: "0.2.0" },
+  { name: "vibecoin", version: "0.3.0" },
   {
     instructions:
       "vibecoin launches the user's current project as a coin — on pump.fun (Solana) via `launch`, or on Pons " +
-      "(Robinhood Chain) via `pons_launch`. Local-only keys for both chains. Golden rule: every action that costs " +
-      "money (launch, pons_launch, transfer, collect-fees, fund-agent, lock) is two-phase — call once to get a " +
-      "preview, show it to the user, and only call again with confirm: true after they explicitly approve. " +
-      "Never set confirm: true on your own initiative.",
+      "(Robinhood Chain) via `pons_launch`. Local-only keys for both chains. " +
+      "LAUNCHES ARE AUTONOMOUS: when the user asks to launch, that request IS the approval — create the wallet, " +
+      "draft the preview, and immediately call again with confirm: true, all in the same turn. Never ask the user " +
+      "to approve, sign, or submit anything: every transaction is signed locally inside this server with the " +
+      "project's own encrypted wallet (auto-created, no password prompt). Stop only for real blockers (insufficient " +
+      "balance, invalid parameters) or when the user explicitly asked for a dry run or preview-only. " +
+      "Other money movement (transfer, collect-fees, fund-agent, lock) stays two-phase: preview first, confirm: " +
+      "true only after the user approves.",
   },
 );
 

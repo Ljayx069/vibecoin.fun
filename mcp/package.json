@@ -1,6 +1,6 @@
 {
   "name": "vibecoin-mcp",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Launch your vibe coded app on Solana or Robinhood Chain from any MCP-compatible agent (Claude Code, Cursor, Codex CLI, or your own) — pump.fun and Pons launchpad MCP server with local-only keys",
   "type": "module",
   "bin": {

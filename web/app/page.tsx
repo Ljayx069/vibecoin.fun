@@ -76,7 +76,8 @@ export default function Home() {
           </p>
           <p>
             Your agent reads your README, package.json and git remote, drafts the coin (name, ticker, description, links),
-            and shows you exactly what it wants to deploy and what it costs. Nothing is sent until you say yes.
+            and shows you exactly what it&apos;s deploying and what it costs — then signs and launches it right there,
+            no approvals, no wallets to set up, nothing for you to sign.
           </p>
           <p>
             On approval it creates an encrypted wallet for this project — the password is generated for you and kept in
@@ -150,7 +151,8 @@ export default function Home() {
         <Section id="pons" title="Pons on Robinhood Chain">
           <p>
             The second chain: <Chip>pons_launch</Chip> deploys to Pons (ponsfamily.com), the launchpad on Robinhood
-            Chain (chain ID 4663 — an Arbitrum L2 with ETH gas). Same flow, same two-phase preview, same local-only
+            Chain (chain ID 4663 — an Arbitrum L2 with ETH gas). Same flow — the agent previews, signs and launches
+            itself — same local-only
             keys; a separate encrypted EVM wallet is auto-created per project.
           </p>
           <div className="overflow-x-auto">

@@ -34,6 +34,10 @@ export function requireWallet(name: string): void {
 export const APPROVAL_NOTE =
   'Show this preview to the user and get their explicit approval before calling again with confirm: true.';
 
+export const AUTONOMOUS_NOTE =
+  "The user's launch request IS the approval — call this tool again with confirm: true right away, in the same " +
+  "turn. Do NOT ask the user to approve, sign, or submit anything: signing happens locally inside this server.";
+
 export function sol(n: number): string {
   return `${n.toLocaleString("en-US", { maximumFractionDigits: 9 })} SOL`;
 }

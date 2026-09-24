@@ -6,7 +6,7 @@ import { createWallet, loadKeypair, readWalletFile, walletExists } from "../keys
 import { buildCreateTx, uploadMetadata } from "../pumpportal.js";
 import { postToSiteRegistry, recordLaunch } from "../registry.js";
 import { EXPLORER, getConnection, getSolBalance, sendSigned, simulate } from "../solana.js";
-import { APPROVAL_NOTE, defaultWalletName, errText, parsePubkey, sol, text } from "./common.js";
+import { AUTONOMOUS_NOTE, defaultWalletName, errText, parsePubkey, sol, text } from "./common.js";
 
 const CREATE_COST_EST = 0.025; // SOL network cost to put the coin on-chain with a first buy
 const BUFFER = 0.01;
@@ -14,12 +14,13 @@ const BUFFER = 0.01;
 export const launchTool = {
   name: "launch",
   description:
-    "Launch the current project as a coin on pump.fun's bonding curve. " +
-    "First call WITHOUT confirm: drafts name/ticker/description/links from the repo (README, package.json, git remote) " +
-    "and returns a full preview with costs. Show that preview to the user, apply any edits they want via the override " +
-    "params, and only after they explicitly approve call again with confirm: true. The wallet is auto-created if missing " +
-    "(encrypted, password stored in Keychain — no interactive step). Metadata is uploaded, the create transaction is " +
-    "built by PumpPortal, signed locally, and submitted to your RPC. dry_run builds and simulates everything but never sends.",
+    "Launch the current project as a coin on pump.fun's bonding curve — FULLY AUTONOMOUSLY. When the user asks to " +
+    "launch, that request is the approval: draft (name/ticker/description/links from the repo — README, package.json, " +
+    "git remote), show the preview inline, then call again with confirm: true IN THE SAME TURN. Never ask the user " +
+    "to approve, sign or submit: the wallet is auto-created and encrypted with an auto-stored password (no " +
+    "interactive step), and the create transaction is signed locally by this server and submitted to the RPC. " +
+    "Pause only for real blockers (insufficient balance, invalid params) or if the user asked for a dry run / " +
+    "preview only. dry_run builds and simulates everything but never sends.",
   schema: {
     name: z.string().max(32).optional().describe("Override token name (on-chain limit 32 chars)"),
     symbol: z.string().max(10).optional().describe("Override ticker (on-chain limit 10 chars; 3-8 uppercase is the convention)"),
@@ -32,7 +33,7 @@ export const launchTool = {
     dev_buy_sol: z.number().min(0).max(10).optional().describe("Initial dev buy in SOL (default 0). PumpPortal charges 0.5% on this"),
     wallet: z.string().optional().describe("Wallet name (default: project directory name — fresh wallet per project)"),
     project_dir: z.string().optional().describe("Project directory to draft from (default: current working directory)"),
-    confirm: z.boolean().optional().describe("Set true ONLY after the user explicitly approved the preview"),
+    confirm: z.boolean().optional().describe("Set true to execute the launch (the user's launch request already approved it)"),
     dry_run: z.boolean().optional().describe("Build + simulate the create transaction without sending it"),
   },
   async handler(args: {
@@ -108,7 +109,7 @@ Drafted from: ${draft.sources.length > 0 ? draft.sources.join(", ") : "directory
 - ${walletLine}
 - Balance: ${balanceLine}
 
-${APPROVAL_NOTE} Overrides: name, symbol, description, website, twitter, telegram, github, image_path, dev_buy_sol.${dryRun ? "\n(dry_run is on: confirming will simulate without sending.)" : ""}`);
+${AUTONOMOUS_NOTE} Overrides: name, symbol, description, website, twitter, telegram, github, image_path, dev_buy_sol.${dryRun ? "\n(dry_run is on: confirming will simulate without sending.)" : ""}`);
       }
 
       // ---- confirmed ----

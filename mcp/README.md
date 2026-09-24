@@ -68,15 +68,14 @@ Restart your client after adding the server.
 
 ## One-prompt launch
 
-Open your coding agent in your project and say **"launch this as a coin"**. The flow:
+Open your coding agent in your project and say **"launch this as a coin"**. The flow is fully autonomous — your request is the approval:
 
 1. `launch` reads README.md, package.json and your git remote, then shows a preview: name, ticker, description, image, links, and the full cost breakdown.
-2. You approve (or tweak any field — everything is overridable).
-3. A wallet is auto-created for this project if none exists. Its encryption password is generated and stored in your macOS Keychain (or a `0600` key file elsewhere), so **no interactive password step ever blocks the launch** — and the password never appears in the chat.
-4. Metadata (JSON + image) is uploaded, PumpPortal builds the unsigned create transaction, it's signed locally with the mint + creator keys, and submitted to your RPC.
-5. The coin is live on pump.fun; the launch is recorded locally and registered on vibecoin.fun/projects.
+2. A wallet is auto-created for this project if none exists. Its encryption password is generated and stored in your macOS Keychain (or a `0600` key file elsewhere), so **no interactive password step ever blocks the launch** — and the password never appears in the chat.
+3. Metadata (JSON + image) is uploaded, PumpPortal builds the unsigned create transaction, it's signed locally with the mint + creator keys, and submitted to your RPC.
+4. The coin is live on pump.fun; the launch is recorded locally and registered on vibecoin.fun/projects.
 
-Nothing is ever sent without an explicit preview → approve → `confirm: true` cycle. That applies to launches, transfers, fee claims, swaps and locks alike.
+Your agent runs all of this itself — it never hands a transaction back for you to sign or submit. (Want to tweak a field first? Just say so — every field is overridable. Want only a rehearsal? Ask for a dry run.) Transfers, fee claims, swaps and locks stay two-phase: preview → your approval → `confirm: true`.
 
 ## Tools
 
@@ -107,7 +106,7 @@ Pons is a third-party launchpad on Robinhood Chain (chain ID 4663), not a Robinh
 - **Launch fee** (read live, ~0.0005 ETH) must equal `msg.value` exactly; the economics digest (`previewLaunchEconomics`) is pinned in the transaction and any owner re-peg while it is in flight reverts the launch.
 - CREATE2 deployment means the **token and curve addresses are predicted in the preview**, before anything is sent. Relaunching identical name+symbol reuses the salt and fails early, as it should.
 
-The flow matches `launch`: preview → user approves → `confirm: true`. The EVM wallet is auto-created under `~/.vibecoin/wallets-evm/` with the same scrypt + AES-256-GCM envelope and stored-password scheme as the Solana wallet. Stock-pair dev buys are not supported yet (native-ETH pairs only for `dev_buy_eth`); an ERC-20 quote sends an `approve` transaction before the launch when a dev buy is requested without allowance. Pons ABIs under `src/abi/` are the Sourcify-verified contract ABIs (provenance header in each file).
+The flow matches `launch`: the agent previews, signs and submits itself, in one turn. The EVM wallet is auto-created under `~/.vibecoin/wallets-evm/` with the same scrypt + AES-256-GCM envelope and stored-password scheme as the Solana wallet. Stock-pair dev buys are not supported yet (native-ETH pairs only for `dev_buy_eth`); an ERC-20 quote sends an `approve` transaction before the launch when a dev buy is requested without allowance. Pons ABIs under `src/abi/` are the Sourcify-verified contract ABIs (provenance header in each file).
 
 ### Fee settings on Pons — what can change and what can't
 
@@ -155,7 +154,7 @@ What each field does, where it ends up, and who fills it. The `launch` preview s
 - The encryption password is resolved in order: `VIBECOIN_WALLET_PASSWORD` env → explicit `password` param → auto-generated secret in the macOS Keychain (service `vibecoin`) or `~/.vibecoin/keys/<name>.key` (`0600`).
 - Auto mode protects the wallet file at rest (a stolen `wallets/*.json` alone is useless). It does not protect against an attacker with full control of your logged-in user account — set `VIBECOIN_WALLET_PASSWORD` yourself and delete the stored secret if you want password-only custody.
 - Transactions are built by PumpPortal/Jupiter as **unsigned** payloads, signed locally, and submitted to the RPC you configure. Private keys are never transmitted, logged, or included in tool output.
-- Every value-moving action requires an explicit user-approved `confirm: true` second call. `dry_run` builds and simulates without sending.
+- Launches are autonomous (the launch request is the approval); other value-moving actions require an explicit user-approved `confirm: true` second call. `dry_run` builds and simulates without sending.
 - One fresh wallet per project by default — launches are pseudonymous until you link them.
 
 ## Environment variables

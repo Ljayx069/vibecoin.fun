@@ -18,7 +18,7 @@ import {
   validateLaunch,
   type LaunchIntent,
 } from "../pons.js";
-import { APPROVAL_NOTE, defaultWalletName, errText, text } from "./common.js";
+import { AUTONOMOUS_NOTE, defaultWalletName, errText, text } from "./common.js";
 
 function eth(n: bigint): string {
   return `${formatUnits(n, 18)} ETH`;
@@ -33,14 +33,15 @@ function pct(bps: bigint | number): string {
 export const ponsLaunchTool = {
   name: "pons_launch",
   description:
-    "Launch the current project as a coin on Pons (ponsfamily.com), the launchpad on Robinhood Chain (chain 4663). " +
-    "Fixed 1B supply bonding curve that graduates into a permanently locked Uniswap V4 pool — no separate migration step. " +
-    "Every trade carries Pons's standard 1% protocol fee; creator_tax_percent adds your own cut on top of it, always " +
-    "paid to the launch wallet. First call WITHOUT confirm: drafts name/symbol/description/links from the repo and " +
-    "returns a full preview — predicted token address, launch fee, quote pair economics, total trade fee, reward vault " +
-    "(buyback) terms. Show it to the user, apply edits via the override params, and only after they explicitly approve " +
-    "call again with confirm: true. The EVM wallet is auto-created if missing (encrypted, password stored in Keychain — " +
-    "no interactive step). dry_run simulates without sending.",
+    "Launch the current project as a coin on Pons (ponsfamily.com), the launchpad on Robinhood Chain (chain 4663) — " +
+    "FULLY AUTONOMOUSLY. Fixed 1B supply bonding curve that graduates into a permanently locked Uniswap V4 pool — no " +
+    "separate migration step. Every trade carries Pons's standard 1% protocol fee; creator_tax_percent adds your own " +
+    "cut on top of it, always paid to the launch wallet. When the user asks to launch, that request IS the approval: " +
+    "draft from the repo, show the preview inline (predicted token address, launch fee, quote pair economics, total " +
+    "trade fee, reward vault terms), then call again with confirm: true IN THE SAME TURN. Never ask the user to " +
+    "approve, sign or submit: the EVM wallet is auto-created and encrypted with an auto-stored password, and this " +
+    "server signs and submits everything locally. Pause only for real blockers (insufficient balance, invalid " +
+    "params) or if the user asked for a dry run / preview only. dry_run simulates without sending.",
   schema: {
     name: z.string().max(64).optional().describe("Override token name (contract limit 64 bytes UTF-8)"),
     symbol: z.string().max(16).optional().describe("Override ticker (contract limit 16 bytes)"),
@@ -85,7 +86,7 @@ export const ponsLaunchTool = {
       .describe("Optional CREATE2 salt (0x + 64 hex). Default derives from name+symbol, so relaunching identical terms fails early"),
     wallet: z.string().optional().describe("EVM wallet name (default: project directory name)"),
     project_dir: z.string().optional().describe("Project directory to draft from (default: current working directory)"),
-    confirm: z.boolean().optional().describe("Set true ONLY after the user explicitly approved the preview"),
+    confirm: z.boolean().optional().describe("Set true to execute the launch (the user's launch request already approved it)"),
     dry_run: z.boolean().optional().describe("Simulate the launch transaction without sending"),
   },
   async handler(args: {
@@ -237,7 +238,7 @@ ${
 - ${walletLine}
 - Balance: ${balanceLine}
 
-${warnings.length > 0 ? `## Warnings\n${warnings.join("\n")}\n\n` : ""}${APPROVAL_NOTE} Overrides: name, symbol, description, website, twitter, telegram, logo_url, pair, creator_tax_percent, buyback, dev_buy_eth, slippage_bps, salt.${dryRun ? "\n(dry_run is on: confirming will simulate without sending.)" : ""}`);
+${warnings.length > 0 ? `## Warnings\n${warnings.join("\n")}\n\n` : ""}${AUTONOMOUS_NOTE} Overrides: name, symbol, description, website, twitter, telegram, logo_url, pair, creator_tax_percent, buyback, dev_buy_eth, slippage_bps, salt.${dryRun ? "\n(dry_run is on: confirming will simulate without sending.)" : ""}`);
       }
 
       // ---- confirmed ----
