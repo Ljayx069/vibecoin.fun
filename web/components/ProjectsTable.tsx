@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { fmtPrice, fmtUsd, truncate } from "@/lib/format";
 
 interface Project {
@@ -26,6 +26,40 @@ interface Project {
 }
 
 type State = { kind: "loading" } | { kind: "error" } | { kind: "ready"; projects: Project[] };
+
+type SortKey = "mcap" | "newest" | "volume" | "change" | "name";
+
+const SORTS: { key: SortKey; label: string }[] = [
+  { key: "mcap", label: "Highest mcap" },
+  { key: "volume", label: "Highest volume" },
+  { key: "change", label: "24h change" },
+  { key: "newest", label: "Newest" },
+  { key: "name", label: "Name A–Z" },
+];
+
+/** Missing market data always sinks to the bottom, whatever the sort. */
+function sortProjects(projects: Project[], key: SortKey): Project[] {
+  const num = (v?: number) => (v === undefined || Number.isNaN(v) ? Number.NEGATIVE_INFINITY : v);
+  const sorted = [...projects];
+  switch (key) {
+    case "mcap":
+      sorted.sort((a, b) => num(b.market?.marketCapUsd) - num(a.market?.marketCapUsd));
+      break;
+    case "volume":
+      sorted.sort((a, b) => num(b.market?.volume24hUsd) - num(a.market?.volume24hUsd));
+      break;
+    case "change":
+      sorted.sort((a, b) => num(b.market?.priceChange24h) - num(a.market?.priceChange24h));
+      break;
+    case "newest":
+      sorted.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      break;
+    case "name":
+      sorted.sort((a, b) => a.name.localeCompare(b.name));
+      break;
+  }
+  return sorted;
+}
 
 function twitterUrl(raw: string): string {
   return raw.startsWith("http") ? raw : `https://x.com/${raw.replace(/^@/, "")}`;
@@ -92,6 +126,7 @@ function ChainBadge({ chain }: { chain?: Project["chain"] }) {
 
 export default function ProjectsTable() {
   const [state, setState] = useState<State>({ kind: "loading" });
+  const [sort, setSort] = useState<SortKey>("mcap");
 
   useEffect(() => {
     fetch("/api/projects")
@@ -99,6 +134,11 @@ export default function ProjectsTable() {
       .then((d) => setState({ kind: "ready", projects: d.projects ?? [] }))
       .catch(() => setState({ kind: "error" }));
   }, []);
+
+  const projects = useMemo(
+    () => (state.kind === "ready" ? sortProjects(state.projects, sort) : []),
+    [state, sort],
+  );
 
   if (state.kind === "loading") return <p className="text-sm text-muted">Loading projects…</p>;
   if (state.kind === "error")
@@ -116,6 +156,22 @@ export default function ProjectsTable() {
 
   return (
     <div className="overflow-x-auto">
+      <div className="mb-3 flex flex-wrap items-center gap-x-1.5 gap-y-1.5 text-xs">
+        <span className="mr-1 text-muted">Sort:</span>
+        {SORTS.map((s) => (
+          <button
+            key={s.key}
+            onClick={() => setSort(s.key)}
+            className={`rounded border px-2 py-0.5 transition-colors ${
+              sort === s.key
+                ? "border-accent text-accent"
+                : "border-hairline text-muted hover:border-muted hover:text-foreground"
+            }`}
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-hairline">
@@ -127,7 +183,7 @@ export default function ProjectsTable() {
           </tr>
         </thead>
         <tbody className="divide-y divide-hairline">
-          {state.projects.map((p) => {
+          {projects.map((p) => {
             const pons = p.chain === "robinhood";
             const tradeUrl = pons ? `https://www.ponsfamily.com/launchpad/${p.mint}` : `https://pump.fun/coin/${p.mint}`;
             const explorerUrl = pons
